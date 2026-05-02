@@ -1,0 +1,18 @@
+{
+  "dialogues": [
+    {
+      "id": "dialogue_chief_first",
+      "lines": [
+        { "speaker": "村長", "text": "やあ、旅人よ。ようこそ村へ。" },
+        { "speaker": "村長", "text": "村を一周してみると良い。" }
+      ]
+    },
+    {
+      "id": "dialogue_chief_after",
+      "lines": [
+        { "speaker": "村長", "text": "村はどうだい？" },
+        { "speaker": "村長", "text": "ゆっくりしていってくれ。" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "actors": [
+    {
+      "id": "player",
+      "name": "主人公",
+      "sprite": "spr_player_placeholder",
+      "startX": 2,
+      "startY": 5
+    },
+    {
+      "id": "village_chief",
+      "name": "村長",
+      "sprite": "spr_chief_placeholder",
+      "startX": 5,
+      "startY": 5
+    }
+  ]
+}

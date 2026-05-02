@@ -1,0 +1,20 @@
+{
+  "events": [
+    {
+      "id": "event_talk_chief_first",
+      "commands": [
+        { "type": "show_dialogue", "dialogueId": "dialogue_chief_first" },
+        { "type": "set_flag", "flag": "chief_talked", "value": true },
+        { "type": "start_quest", "questId": "quest_walk_village" },
+        { "type": "save_checkpoint" }
+      ]
+    },
+    {
+      "id": "event_talk_chief_after",
+      "commands": [
+        { "type": "show_dialogue", "dialogueId": "dialogue_chief_after" },
+        { "type": "save_checkpoint" }
+      ]
+    }
+  ]
+}

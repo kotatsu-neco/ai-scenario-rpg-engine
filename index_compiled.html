@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Scenario Mobile RPG v0.1 (compiled)</title>
+    <!-- Include the same styles as the original index.html. These CSS files
+         live under src/styles and will be served as static assets when
+         using a simple HTTP server. -->
+    <link rel="stylesheet" href="/src/styles/global.css" />
+    <link rel="stylesheet" href="/src/styles/mobile-ui.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Canvas for rendering the map and actors. -->
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- Mobile control overlay. Contains a simple D‑pad and an action button. -->
+      <div id="ui">
+        <div id="dpad" class="dpad">
+          <button id="btn-up" class="dpad-btn up" aria-label="Move up">▲</button>
+          <button id="btn-left" class="dpad-btn left" aria-label="Move left">◀︎</button>
+          <button id="btn-right" class="dpad-btn right" aria-label="Move right">▶︎</button>
+          <button id="btn-down" class="dpad-btn down" aria-label="Move down">▼</button>
+        </div>
+        <button id="actionButton" class="action-btn" aria-label="Action">決定</button>
+      </div>
+
+      <!-- Dialogue overlay. Hidden by default. -->
+      <div id="dialogue" class="dialogue hidden" role="dialog">
+        <div id="dialogueSpeaker" class="dialogue-speaker"></div>
+        <div id="dialogueText" class="dialogue-text"></div>
+      </div>
+
+      <!-- Debug overlay for development. Shows runtime information when
+           ?debug=1 is present in the URL. -->
+      <div id="debugOverlay" class="debug-overlay hidden"></div>
+    </div>
+    <!-- Load the compiled JavaScript module instead of the TypeScript entry
+         point. This file is generated via the `tsc` compiler into the
+         compiled/ directory. Using type="module" allows the ES module
+         imports in the compiled code to function. -->
+    <script type="module" src="/compiled/main.js"></script>
+  </body>
+</html>

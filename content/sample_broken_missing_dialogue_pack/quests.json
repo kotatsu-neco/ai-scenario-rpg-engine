@@ -1,0 +1,9 @@
+{
+  "quests": [
+    {
+      "id": "quest_walk_village",
+      "name": "村の散策",
+      "description": "村を一周する"
+    }
+  ]
+}
