@@ -8,7 +8,8 @@
  */
 
 // Build identifier used for cache busting and GitHub Pages verification.
-const BUILD_ID = '20260502_pages_path_fix_02';
+// Update build identifier to reflect Safari fix for GitHub Pages.
+const BUILD_ID = '20260502_safari_fix_01';
 /**
  * Validate the loaded content pack for invalid references.  Currently
  * only validates show_dialogue steps to ensure the referenced
@@ -192,6 +193,20 @@ class Game {
         if (this.debugEnabled) {
             this.debugOverlay.classList.remove('hidden');
         }
+
+        // Timestamp of the last confirm action to prevent duplicate processing.
+        this.lastConfirmAt = 0;
+        // Event and dialogue tracking for debug overlay
+        this.activeEventId = null;
+        this.lastCommand = null;
+        this.eventStepIndex = 0;
+        this.eventStepCount = 0;
+        this.currentDialogueId = null;
+        this.dialogueLineIndex = 0;
+        this.dialogueLineCount = 0;
+        this.lastPointerEvent = null;
+        this.lastKeyboardEvent = null;
+        this.lastInputIntent = null;
     }
     /** Initialize flags based on the content pack defaults. */
     initFlags(defaults) {
@@ -262,9 +277,12 @@ class Game {
         // Keyboard input
         window.addEventListener('keydown', (e) => {
             this.keys[e.key] = true;
+            // Record last keyboard event for debugging
+            this.lastKeyboardEvent = e.key;
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                this.handleAction();
+                this.lastInputIntent = 'keyboard';
+                this.confirmIntent();
             }
         });
         window.addEventListener('keyup', (e) => {
@@ -292,10 +310,63 @@ class Game {
             });
         });
         // Action button
+        // Normal click triggers confirm
         this.actionButton.addEventListener('click', (e) => {
             e.preventDefault();
-            this.handleAction();
+            this.lastPointerEvent = 'click';
+            this.lastInputIntent = 'actionButton';
+            this.confirmIntent();
         });
+        // Pointerup is needed on some desktop browsers (e.g. Safari) to ensure confirm fires
+        this.actionButton.addEventListener('pointerup', (e) => {
+            e.preventDefault();
+            this.lastPointerEvent = 'pointerup';
+            this.lastInputIntent = 'actionButton';
+            this.confirmIntent();
+        });
+        // Touchend ensures confirm on mobile
+        this.actionButton.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this.lastPointerEvent = 'touchend';
+            this.lastInputIntent = 'actionButton';
+            this.confirmIntent();
+        });
+        // Allow clicking on the dialogue overlay to progress dialogue
+        if (this.dialogueOverlay) {
+            this.dialogueOverlay.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.lastPointerEvent = 'click';
+                this.lastInputIntent = 'dialogue';
+                this.confirmIntent();
+            });
+            this.dialogueOverlay.addEventListener('pointerup', (e) => {
+                e.preventDefault();
+                this.lastPointerEvent = 'pointerup';
+                this.lastInputIntent = 'dialogue';
+                this.confirmIntent();
+            });
+            this.dialogueOverlay.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.lastPointerEvent = 'touchend';
+                this.lastInputIntent = 'dialogue';
+                this.confirmIntent();
+            });
+        }
+    }
+
+    /**
+     * Unified confirm handler.  All user inputs that should advance
+     * dialogue or trigger interaction call this method.  It debounces
+     * rapid inputs by ignoring events that occur within 150 ms of the
+     * previous confirm.
+     */
+    confirmIntent() {
+        const now = performance.now();
+        if (now - this.lastConfirmAt < 150) {
+            return;
+        }
+        this.lastConfirmAt = now;
+        this.handleAction();
     }
     /** Setup UI behaviour such as updating action button text. */
     initUI() {
@@ -352,12 +423,21 @@ class Game {
             console.warn(`Event ${eventId} not found`);
             return;
         }
+        // Track the active event for debugging
+        this.activeEventId = eventId;
+        this.eventStepCount = event.commands.length;
         const runCommands = (commands, index) => {
             if (index >= commands.length) {
                 // End of commands. Update action button label in next frame.
+                // Clear active event tracking
+                this.activeEventId = null;
+                this.lastCommand = null;
                 return;
             }
             const cmd = commands[index];
+            // Record current command and step index for debugging
+            this.lastCommand = cmd.type;
+            this.eventStepIndex = index;
             switch (cmd.type) {
                 case 'show_dialogue': {
                     const dlg = this.dialogues.get(cmd.dialogueId);
@@ -365,19 +445,32 @@ class Game {
                         console.error(`Dialogue ${cmd.dialogueId} not found`);
                         return;
                     }
+                    // Show the dialogue and set tracking info
+                    this.currentDialogueId = cmd.dialogueId;
+                    this.dialogueLineIndex = 0;
+                    this.dialogueLineCount = dlg.lines.length;
+                    console.log(`[DialogueUI] open dialogueId=${cmd.dialogueId}`);
                     this.showDialogue(dlg.lines, () => {
+                        console.log(`[DialogueUI] close`);
+                        // Dialogue finished; clear dialogue tracking
+                        this.currentDialogueId = null;
+                        this.dialogueLineIndex = 0;
+                        this.dialogueLineCount = 0;
+                        console.log(`[EventRunner] command complete show_dialogue`);
                         runCommands(commands, index + 1);
                     });
                     break;
                 }
                 case 'set_flag': {
                     this.flags[cmd.flag] = cmd.value;
+                    console.log(`[EventRunner] run step set_flag`);
                     runCommands(commands, index + 1);
                     break;
                 }
                 case 'start_quest': {
                     // For simplicity, mark quest as started and ignore objectives.
                     console.log(`Quest ${cmd.questId} started`);
+                    console.log(`[EventRunner] run step start_quest`);
                     runCommands(commands, index + 1);
                     break;
                 }
@@ -393,6 +486,7 @@ class Game {
                 }
                 case 'save_checkpoint': {
                     this.save();
+                    console.log(`[EventRunner] run step save_checkpoint`);
                     runCommands(commands, index + 1);
                     break;
                 }
@@ -447,9 +541,53 @@ class Game {
         else {
             this.actionButton.textContent = '決定';
         }
-        // Update debug overlay if enabled.
+        // Update debug overlay if enabled.  Display a comprehensive
+        // snapshot of the current game state to aid in debugging on
+        // devices like Mac Safari where input handling may differ.
         if (this.debugEnabled) {
-            this.debugOverlay.textContent = `pack:${this.content.packId} map:${this.map.id} x:${this.player.x} y:${this.player.y} facing:${this.player.facing} flags:${JSON.stringify(this.flags)}`;
+            // Determine the current UI state. When a dialogue is
+            // active, the state is "dialogue", otherwise the state is
+            // "field".  Additional states (e.g. validator error)
+            // would override this logic by hiding the debug overlay.
+            const state = this.dialogueQueue ? 'dialogue' : 'field';
+            const inputLocked = this.dialogueQueue ? true : false;
+            // Build a multi‑line string containing key diagnostics.
+            const lines = [];
+            lines.push(`buildId: ${BUILD_ID}`);
+            lines.push(`userAgent: ${navigator.userAgent}`);
+            // Paths resolved at bootstrap (these properties are
+            // populated when the game is initialised).
+            if (this.appBaseUrl)
+                lines.push(`appBaseUrl: ${this.appBaseUrl}`);
+            if (this.packUrl)
+                lines.push(`packUrl: ${this.packUrl}`);
+            if (this.packBaseUrl)
+                lines.push(`packBaseUrl: ${this.packBaseUrl}`);
+            lines.push(`packId: ${this.content.packId}`);
+            lines.push(`map: ${this.map.id}`);
+            lines.push(`player: (${this.player.x},${this.player.y}) facing:${this.player.facing}`);
+            lines.push(`currentState: ${state}`);
+            lines.push(`inputLock: ${inputLocked}`);
+            // Flags of interest
+            lines.push(`chief_talked: ${this.flags['chief_talked']}`);
+            lines.push(`quest_walk_village: ${this.flags['quest_walk_village']}`);
+            // Event runner info
+            lines.push(`activeEventId: ${this.activeEventId}`);
+            lines.push(`lastCommand: ${this.lastCommand}`);
+            lines.push(`eventStepIndex: ${this.eventStepIndex}`);
+            lines.push(`eventStepCount: ${this.eventStepCount}`);
+            // Dialogue info
+            lines.push(`dialogueOpen: ${!!this.dialogueQueue}`);
+            lines.push(`dialogueId: ${this.currentDialogueId}`);
+            lines.push(`dialogueLineIndex: ${this.dialogueLineIndex}`);
+            lines.push(`dialogueLineCount: ${this.dialogueLineCount}`);
+            // Last input events
+            lines.push(`lastInputIntent: ${this.lastInputIntent}`);
+            lines.push(`lastPointerEvent: ${this.lastPointerEvent}`);
+            lines.push(`lastKeyboardEvent: ${this.lastKeyboardEvent}`);
+            // JSON string for all flags (truncated if large)
+            lines.push(`flags: ${JSON.stringify(this.flags)}`);
+            this.debugOverlay.textContent = lines.join('\n');
         }
     }
     /** Update player movement based on pressed keys. */
@@ -647,6 +785,30 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
         const canvas = document.getElementById('gameCanvas');
         const game = new Game(canvas, content);
+        // Persist path information onto the game instance for later
+        // reference in the debug overlay.  These properties are used
+        // inside the Game.update method to display where content is
+        // being loaded from.  Without assigning them here, the
+        // overlay would not know the resolved URLs.
+        try {
+            const appBaseUrl = new URL('.', window.location.href).href;
+            const params = new URLSearchParams(window.location.search);
+            const packIdParam = params.get('pack') ?? 'sample_minimal_pack';
+            const packUrlStr = new URL(`content/${packIdParam}/pack.json`, new URL('.', window.location.href)).href;
+            const packBaseUrl = new URL('.', packUrlStr).href;
+            game.appBaseUrl = appBaseUrl;
+            game.packUrl = packUrlStr;
+            game.packBaseUrl = packBaseUrl;
+        }
+        catch (e) {
+            // Ignore errors resolving URLs
+        }
+        // Ensure debug overlay is visible in debug mode.
+        const debugOverlay = document.getElementById('debugOverlay');
+        if (debugOverlay) {
+            debugOverlay.classList.remove('hidden');
+            debugOverlay.style.whiteSpace = 'pre';
+        }
         game.start();
     }
     catch (err) {

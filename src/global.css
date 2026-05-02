@@ -1,0 +1,95 @@
+/*
+ * Global styles for the AI Scenario Mobile Web RPG engine.
+ *
+ * This stylesheet normalises the page layout, ensures the canvas
+ * consumes the available space and defines the look of the dialogue
+ * window and debug overlay. Additional UI elements such as the
+ * virtual D‑pad and action button live in mobile-ui.css.
+ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background: #000;
+  font-family: sans-serif;
+  color: #fff;
+  overflow: hidden;
+}
+
+/* Root container holds the canvas and overlays. */
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* The game canvas fills its parent horizontally and takes up
+   most of the vertical space. It has a dark background so that
+   grid lines and sprites are visible on top. */
+#gameCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #222;
+  touch-action: none;
+}
+
+/* Dialogue overlay appears near the bottom of the screen. It is
+   hidden by default and becomes visible when a dialogue is active. */
+.dialogue {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 600px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid #fff;
+  padding: 8px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.dialogue.hidden {
+  display: none;
+}
+
+.dialogue-speaker {
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
+.dialogue-text {
+  font-size: 0.9rem;
+  line-height: 1.2;
+  white-space: pre-wrap;
+}
+
+/* Debug overlay sits at the top of the screen and displays
+   runtime information such as map and player coordinates. It is
+   hidden by default unless ?debug=1 is present in the URL. */
+.debug-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  color: #0f0;
+  background: rgba(0, 0, 0, 0.7);
+  font-size: 12px;
+  line-height: 1.2;
+  padding: 4px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.debug-overlay.hidden {
+  display: none;
+}

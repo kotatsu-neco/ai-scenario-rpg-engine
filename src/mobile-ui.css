@@ -1,0 +1,100 @@
+/*
+ * Styles specific to the mobile control overlay. The UI consists of a
+ * directional pad (D‑pad) for movement and a circular action button
+ * for context sensitive actions. The controls are positioned at the
+ * bottom of the screen and sized for touch interaction.
+ */
+
+/* Container for all control elements. It stretches across the
+   bottom of the screen and uses flexbox to space the D‑pad and
+   action button apart. By default pointer events pass through this
+   element; individual buttons enable pointer interactions. */
+#ui {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  height: 120px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* The directional pad uses absolute positioning to arrange four
+   buttons in a cross shape. The container itself allows pointer
+   events so that the individual buttons can receive touches. */
+.dpad {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  pointer-events: auto;
+}
+
+/* Base style for each D‑pad button. Buttons are semi‑transparent to
+   avoid obscuring the game view. When pressed, browsers will apply
+   their own active styles; no outline is drawn. */
+.dpad-btn {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Position each arrow button relative to the D‑pad container. */
+.dpad-btn.up {
+  top: 0;
+  left: 40px;
+}
+
+.dpad-btn.down {
+  bottom: 0;
+  left: 40px;
+}
+
+.dpad-btn.left {
+  top: 40px;
+  left: 0;
+}
+
+.dpad-btn.right {
+  top: 40px;
+  right: 0;
+}
+
+/* Action button is larger and circular. It sits to the right of
+   the D‑pad and allows pointer events. */
+.action-btn {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  pointer-events: auto;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* When the user presses a button, slightly reduce its opacity to
+   provide feedback. */
+.dpad-btn:active,
+.action-btn:active {
+  background: rgba(255, 255, 255, 0.5);
+}
