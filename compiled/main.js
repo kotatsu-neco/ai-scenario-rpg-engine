@@ -6,6 +6,9 @@
  * dependencies to ensure it can run in an isolated environment. The
  * resulting code should compile with TypeScript and run under Vite.
  */
+
+// Build identifier used for cache busting and GitHub Pages verification.
+const BUILD_ID = '20260502_pages_path_fix_02';
 /**
  * Validate the loaded content pack for invalid references.  Currently
  * only validates show_dialogue steps to ensure the referenced
@@ -613,6 +616,30 @@ window.addEventListener('DOMContentLoaded', async () => {
         const content = await loadContentPack();
         // Validate the content pack before starting the game.
         const report = validateContentPack(content);
+        // Compute and display debug information about paths, IDs and validation summary.
+        try {
+            const appBaseUrl = new URL('.', window.location.href).href;
+            const params = new URLSearchParams(window.location.search);
+            const packIdParam = params.get('pack') ?? 'sample_minimal_pack';
+            const packUrlStr = new URL(`content/${packIdParam}/pack.json`, new URL('.', window.location.href)).href;
+            const packBaseUrl = new URL('.', packUrlStr).href;
+            const debugOverlay = document.getElementById('debugOverlay');
+            if (debugOverlay) {
+                debugOverlay.classList.remove('hidden');
+                debugOverlay.style.whiteSpace = 'pre';
+                debugOverlay.innerText =
+                    `buildId: ${BUILD_ID}\n` +
+                    `appBaseUrl: ${appBaseUrl}\n` +
+                    `packUrl: ${packUrlStr}\n` +
+                    `packBaseUrl: ${packBaseUrl}\n` +
+                    `packId: ${content.packId}\n` +
+                    `errorCount: ${report.summary.errorCount}\n` +
+                    `warningCount: ${report.summary.warningCount}`;
+            }
+        }
+        catch (_) {
+            /* ignore debug info errors */
+        }
         if (report.summary.errorCount > 0) {
             // Show validation error and do not start the game
             renderValidationErrorScreen(report);
