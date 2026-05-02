@@ -88,6 +88,52 @@ function renderValidationErrorScreen(report) {
   `;
     app.appendChild(overlay);
 }
+
+/**
+ * Render an error screen when the content pack or its components fail to
+ * load (e.g. due to incorrect paths or network errors).  This hides
+ * the game UI and presents a simple message in Japanese so the user
+ * understands what went wrong.  The provided error is displayed
+ * alongside a hint about verifying the URL structure.
+ */
+function renderContentLoadError(err) {
+    const app = document.getElementById('app');
+    if (!app)
+        return;
+    // Hide game canvas and UI elements
+    const canvas = document.getElementById('gameCanvas');
+    if (canvas) {
+        canvas.style.display = 'none';
+    }
+    const ui = document.getElementById('ui');
+    if (ui) {
+        ui.style.display = 'none';
+    }
+    const dialogueOverlay = document.getElementById('dialogue');
+    if (dialogueOverlay) {
+        dialogueOverlay.style.display = 'none';
+    }
+    // Build overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'contentLoadError';
+    overlay.style.position = 'absolute';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.right = '0';
+    overlay.style.bottom = '0';
+    overlay.style.backgroundColor = '#fff';
+    overlay.style.color = '#000';
+    overlay.style.padding = '20px';
+    overlay.style.overflowY = 'auto';
+    overlay.style.zIndex = '1000';
+    overlay.innerHTML = `
+    <h1>コンテンツ読み込みエラー</h1>
+    <p>ゲームデータの読み込み中にエラーが発生しました。</p>
+    <p>${err.message}</p>
+    <p>URL が正しいか、ホスティング先のパス設定を確認してください。</p>
+  `;
+    app.appendChild(overlay);
+}
 class Game {
     constructor(canvas, content) {
         this.npcs = [];
@@ -508,22 +554,47 @@ class Game {
         requestAnimationFrame(this.loop);
     }
 }
-/** Load all JSON files that comprise the minimal content pack. */
+/**
+ * Load all JSON files that comprise the content pack.  This function
+ * resolves paths relative to the current index.html location so that
+ * the engine can be hosted under a sub‑path (e.g. GitHub Pages).  If
+ * the `pack` URL parameter is provided it will be used, otherwise
+ * `sample_minimal_pack` is assumed.  If any file fails to load this
+ * function will throw an exception so the caller can render an error
+ * overlay.
+ */
 async function loadContentPack() {
-    // Determine the content pack to load based on URL parameters.  If the
-    // `pack` parameter is not provided, default to the minimal pack.
+    // Determine the base URL of the app (the directory containing index.html).
+    const appBaseUrl = new URL('.', window.location.href);
+    // Determine which pack to load from the query string.
     const params = new URLSearchParams(window.location.search);
     const packId = params.get('pack') ?? 'sample_minimal_pack';
-    const base = `/content/${packId}`;
-    const [pack, gameConfig, actors, maps, dialogues, events, flags, quests] = await Promise.all([
-        fetch(`${base}/pack.json`).then((r) => r.json()),
-        fetch(`${base}/game.config.json`).then((r) => r.json()),
-        fetch(`${base}/actors.json`).then((r) => r.json()),
-        fetch(`${base}/maps.json`).then((r) => r.json()),
-        fetch(`${base}/dialogues.json`).then((r) => r.json()),
-        fetch(`${base}/events.json`).then((r) => r.json()),
-        fetch(`${base}/flags.json`).then((r) => r.json()),
-        fetch(`${base}/quests.json`).then((r) => r.json()),
+    // Resolve the pack.json URL relative to the app base.
+    const packUrl = new URL(`content/${packId}/pack.json`, appBaseUrl);
+    // Fetch pack.json first to obtain the packId and use it later in the returned object.
+    const pack = await fetch(packUrl.href).then((r) => {
+        if (!r.ok)
+            throw new Error(`pack.jsonの読み込みに失敗しました (${r.status})`);
+        return r.json();
+    });
+    // Determine the base URL for other files (same directory as pack.json).
+    const packBase = new URL('.', packUrl);
+    // Helper to fetch JSON relative to packBase.
+    async function loadJson(filename) {
+        const url = new URL(filename, packBase);
+        const resp = await fetch(url.href);
+        if (!resp.ok)
+            throw new Error(`${filename} の読み込みに失敗しました (${resp.status})`);
+        return resp.json();
+    }
+    const [gameConfig, actors, maps, dialogues, events, flags, quests] = await Promise.all([
+        loadJson('game.config.json'),
+        loadJson('actors.json'),
+        loadJson('maps.json'),
+        loadJson('dialogues.json'),
+        loadJson('events.json'),
+        loadJson('flags.json'),
+        loadJson('quests.json'),
     ]);
     return {
         packId: pack.packId,
@@ -553,10 +624,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     catch (err) {
         console.error('Failed to initialize game', err);
-        const overlay = document.getElementById('debugOverlay');
-        if (overlay) {
-            overlay.classList.remove('hidden');
-            overlay.textContent = '起動エラー: ' + err.message;
-        }
+        // If loading the content pack fails (e.g. 404), show a user‑friendly error overlay.
+        renderContentLoadError(err);
     }
 });
