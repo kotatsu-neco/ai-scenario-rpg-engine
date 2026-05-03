@@ -1,0 +1,65 @@
+[
+  {
+    "file": "compiled/main.js",
+    "command": "node --check compiled/main.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "src/engine/notes/AiConsultationMarkdownExporter.js",
+    "command": "node --check src/engine/notes/AiConsultationMarkdownExporter.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "src/engine/notes/ContextSnapshotBuilder.js",
+    "command": "node --check src/engine/notes/ContextSnapshotBuilder.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "src/engine/notes/PlaytestNoteManager.js",
+    "command": "node --check src/engine/notes/PlaytestNoteManager.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "src/engine/notes/PlaytestNoteStorage.js",
+    "command": "node --check src/engine/notes/PlaytestNoteStorage.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "src/engine/notes/PlaytestNoteTypes.js",
+    "command": "node --check src/engine/notes/PlaytestNoteTypes.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "src/engine/ui/PlaytestNoteErrorView.js",
+    "command": "node --check src/engine/ui/PlaytestNoteErrorView.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "src/engine/ui/PlaytestNoteList.js",
+    "command": "node --check src/engine/ui/PlaytestNoteList.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "file": "src/engine/ui/PlaytestNotePanel.js",
+    "command": "node --check src/engine/ui/PlaytestNotePanel.js",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

@@ -1,3 +1,4 @@
+import { PlaytestNoteManager } from '../src/engine/notes/PlaytestNoteManager.js';
 /*
  * Entry point for the AI Scenario Mobile Web RPG engine prototype. This
  * script loads a minimal content pack from the public folder, sets up a
@@ -9,7 +10,7 @@
 
 // Build identifier used for cache busting and GitHub Pages verification.
 // Update build identifier to reflect Safari fix for GitHub Pages.
-const BUILD_ID = '20260502_safari_fix_01';
+const BUILD_ID = '20260502_v0_2_notes_arch_fix_01';
 /**
  * Validate the loaded content pack for invalid references.  Currently
  * only validates show_dialogue steps to ensure the referenced
@@ -137,7 +138,9 @@ function renderContentLoadError(err) {
     <p>URL が正しいか、ホスティング先のパス設定を確認してください。</p>
   `;
     app.appendChild(overlay);
-}
+
+
+
 class Game {
     constructor(canvas, content) {
         this.npcs = [];
@@ -207,6 +210,11 @@ class Game {
         this.lastPointerEvent = null;
         this.lastKeyboardEvent = null;
         this.lastInputIntent = null;
+        this.lastEventId = null;
+        this.lastDialogueId = null;
+        const savedForQuests = this.loadSaved();
+        this.activeQuestIds = new Set(savedForQuests?.activeQuestIds || []);
+        this.validationSummary = { errorCount: 0, warningCount: 0 };
     }
     /** Initialize flags based on the content pack defaults. */
     initFlags(defaults) {
@@ -254,6 +262,7 @@ class Game {
             mapId: this.map.id,
             player: { x: this.player.x, y: this.player.y },
             flags: this.flags,
+            activeQuestIds: Array.from(this.activeQuestIds || []),
         };
         localStorage.setItem('aiRpgSave', JSON.stringify(data));
     }
@@ -425,6 +434,7 @@ class Game {
         }
         // Track the active event for debugging
         this.activeEventId = eventId;
+        this.lastEventId = eventId;
         this.eventStepCount = event.commands.length;
         const runCommands = (commands, index) => {
             if (index >= commands.length) {
@@ -447,6 +457,7 @@ class Game {
                     }
                     // Show the dialogue and set tracking info
                     this.currentDialogueId = cmd.dialogueId;
+                    this.lastDialogueId = cmd.dialogueId;
                     this.dialogueLineIndex = 0;
                     this.dialogueLineCount = dlg.lines.length;
                     console.log(`[DialogueUI] open dialogueId=${cmd.dialogueId}`);
@@ -468,7 +479,9 @@ class Game {
                     break;
                 }
                 case 'start_quest': {
-                    // For simplicity, mark quest as started and ignore objectives.
+                    // For simplicity, mark quest as started and retain it for context snapshots.
+                    this.activeQuestIds.add(cmd.questId);
+                    this.flags[cmd.questId] = true;
                     console.log(`Quest ${cmd.questId} started`);
                     console.log(`[EventRunner] run step start_quest`);
                     runCommands(commands, index + 1);
@@ -512,6 +525,7 @@ class Game {
     advanceDialogue() {
         if (!this.dialogueQueue || this.dialogueQueue.length === 0) {
             // End of dialogue
+            console.log('[DialogueUI] reached end');
             this.dialogueQueue = null;
             this.dialogueOverlay.classList.add('hidden');
             const cb = this.dialogueCallback;
@@ -521,6 +535,8 @@ class Game {
             return;
         }
         const line = this.dialogueQueue.shift();
+        this.dialogueLineIndex = this.dialogueLineCount - this.dialogueQueue.length;
+        console.log(`[DialogueUI] advance lineIndex=${this.dialogueLineIndex}`);
         this.dialogueSpeaker.textContent = line.speaker;
         this.dialogueText.textContent = line.text;
     }
@@ -646,6 +662,7 @@ class Game {
             case 'right': return 'ArrowRight';
         }
     }
+
     /** Render the current frame onto the canvas. */
     render() {
         const ctx = this.ctx;
@@ -739,6 +756,7 @@ async function loadContentPack() {
     ]);
     return {
         packId: pack.packId,
+        packVersion: pack.version ?? null,
         maps: maps.maps,
         actors: actors.actors,
         dialogues: dialogues.dialogues,
@@ -803,13 +821,17 @@ window.addEventListener('DOMContentLoaded', async () => {
         catch (e) {
             // Ignore errors resolving URLs
         }
-        // Ensure debug overlay is visible in debug mode.
+        game.validationSummary = report.summary;
+        // Ensure debug overlay is visible in debug mode only.
         const debugOverlay = document.getElementById('debugOverlay');
-        if (debugOverlay) {
+        const paramsForDebug = new URLSearchParams(window.location.search);
+        if (debugOverlay && paramsForDebug.get('debug') === '1') {
             debugOverlay.classList.remove('hidden');
             debugOverlay.style.whiteSpace = 'pre';
         }
         game.start();
+        window.aiRpgGame = game;
+        window.aiRpgPlaytestNotes = new PlaytestNoteManager(game);
     }
     catch (err) {
         console.error('Failed to initialize game', err);

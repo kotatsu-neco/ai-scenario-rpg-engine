@@ -1,0 +1,139 @@
+.playtest-note-panel {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  width: min(360px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  z-index: 1200;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid rgba(31, 41, 55, 0.22);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+  color: #111827;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 13px;
+}
+.playtest-note-panel__header h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+.playtest-note-panel__header p {
+  margin: 0 0 12px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+.playtest-note-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.playtest-note-field textarea,
+.playtest-note-field select,
+.playtest-note-status-row select,
+.playtest-note-markdown {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 8px;
+  font: inherit;
+  background: #fff;
+}
+.playtest-note-field textarea {
+  resize: vertical;
+}
+.playtest-note-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.playtest-note-actions,
+.playtest-note-status-row {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.playtest-note-actions button,
+.playtest-note-status-row button {
+  border: 1px solid #334155;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #111827;
+  padding: 7px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+.playtest-note-actions button:hover,
+.playtest-note-status-row button:hover {
+  background: #e5e7eb;
+}
+.playtest-note-status-row select {
+  flex: 1 1 180px;
+}
+.playtest-note-message {
+  min-height: 20px;
+  margin: 8px 0;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  line-height: 1.5;
+}
+.playtest-note-message[data-type="error"] {
+  background: #ffe4e6;
+  color: #9f1239;
+}
+.playtest-note-message[data-type="success"] {
+  background: #dcfce7;
+  color: #166534;
+}
+.playtest-note-list {
+  display: block;
+  max-height: 220px;
+  overflow: auto;
+  margin: 8px 0;
+}
+.playtest-note-list-item {
+  display: block;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  cursor: pointer;
+}
+.playtest-note-list-item.is-selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+.playtest-note-list-item strong,
+.playtest-note-list-item span,
+.playtest-note-list-item small {
+  display: block;
+}
+.playtest-note-list-item span,
+.playtest-note-list-item small,
+.playtest-note-empty {
+  color: #64748b;
+}
+.playtest-note-markdown {
+  min-height: 120px;
+  resize: vertical;
+  margin-top: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+@media (max-width: 767px) {
+  .playtest-note-panel {
+    display: none;
+  }
+}
