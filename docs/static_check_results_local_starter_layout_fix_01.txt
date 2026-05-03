@@ -1,0 +1,47 @@
+Static check results for 20260503_local_starter_layout_fix_01
+
+Executed:
+find compiled src -name "*.js" -print0 | xargs -0 -n1 node --check
+
+Result:
+PASS
+
+Executed:
+node --input-type=module URL mode shouldEnable static check
+
+Checked:
+- index.html / no params / desktop -> editor disabled
+- ?mode=play / desktop -> editor disabled
+- ?play=1 / desktop -> editor disabled
+- ?mode=editor / desktop -> editor enabled
+- ?local=1 / desktop -> editor enabled
+- ?mode=editor / mobile width -> editor disabled
+- ?local=1 / mobile width -> editor disabled
+- ?local=0 / desktop -> editor disabled
+
+Result:
+PASS
+
+Notes:
+- Browser / Playwright confirmation was not executed in this environment.
+- macOS Safari / iPhone Safari confirmation was not executed.
+- GitHub Pages URL confirmation was not executed.
+
+Executed:
+python3 -m http.server --directory /mnt/data/ls_fix_work and curl major files
+
+Checked HTTP 200:
+- /index.html
+- /compiled/main.js?v=20260503_local_starter_layout_fix_01
+- /src/app/LocalStarterApp.js
+- /src/engine/layout/LayoutManager.js
+- /src/engine/ai-handoff/AiHandoffPanel.js
+- /src/engine/notes/PlaytestNoteFloatingWindow.js
+- /src/engine/ui/FloatingWindowManager.js
+- /src/engine/editor/DialogueEditorPanel.js
+- /src/styles/local-starter-layout.css
+- /content/sample_minimal_pack/pack.json
+- /content/sample_broken_missing_dialogue_pack/pack.json
+
+Result:
+PASS

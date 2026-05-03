@@ -1,3 +1,4 @@
+window.__AI_RPG_NOTES_MODULE_LOADED__ = true;
 import { formatJstDateTime, makeNoteId } from './PlaytestNoteTypes.js';
 import { PlaytestNoteStorage } from './PlaytestNoteStorage.js';
 import { ContextSnapshotBuilder } from './ContextSnapshotBuilder.js';

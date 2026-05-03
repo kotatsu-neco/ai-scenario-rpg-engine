@@ -1,3 +1,4 @@
+window.__AI_RPG_UI_MODULE_LOADED__ = true;
 import { optionHtml, PLAYTEST_NOTE_CATEGORIES, PLAYTEST_NOTE_PRIORITIES, PLAYTEST_NOTE_STATUSES } from '../notes/PlaytestNoteTypes.js';
 
 export class PlaytestNotePanel {

@@ -3,14 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Scenario Mobile RPG v0.2</title>
+    <title>AI Scenario RPG Engine Public Demo v0.2</title>
     <!-- グローバルおよびモバイルUI用のスタイル。絶対パスではなく相対パスで読み込む -->
     <link rel="stylesheet" href="./src/styles/global.css" />
     <link rel="stylesheet" href="./src/styles/mobile-ui.css" />
-    <link rel="stylesheet" href="./src/styles/playtest-notes.css?v=20260502_v0_2_notes_arch_fix_01" />
+    <link rel="stylesheet" href="./src/styles/playtest-notes.css?v=20260503_local_starter_layout_fix_01" />
+    <link rel="stylesheet" href="./src/styles/local-starter-layout.css?v=20260503_local_starter_layout_fix_01" />
   </head>
   <body>
     <div id="app">
+      <div id="bootError" class="boot-error" hidden>
+        <h1>ゲームの起動に失敗しました</h1>
+        <p>必要なJavaScriptファイルを読み込めませんでした。</p>
+        <p>GitHub Pagesに <code>compiled/main.js</code> と <code>src/engine/</code> 配下の分割モジュールが配置されているか確認してください。</p>
+      </div>
       <!-- Canvas for rendering the map and actors. -->
       <canvas id="gameCanvas"></canvas>
 
@@ -35,8 +41,22 @@
            ?debug=1 is present in the URL. -->
       <div id="debugOverlay" class="debug-overlay hidden"></div>
     </div>
+    <script>
+      window.__AI_RPG_BOOT_STARTED__ = false;
+      window.__AI_RPG_MAIN_JS_LOADED__ = false;
+      window.__AI_RPG_NOTES_MODULE_LOADED__ = false;
+      window.__AI_RPG_UI_MODULE_LOADED__ = false;
+      window.__AI_RPG_CONTENT_PACK_LOADED__ = false;
+      window.__AI_RPG_GAME_START_CALLED__ = false;
+      setTimeout(() => {
+        if (!window.__AI_RPG_BOOT_STARTED__) {
+          const bootError = document.getElementById('bootError');
+          if (bootError) bootError.hidden = false;
+        }
+      }, 3000);
+    </script>
     <!-- コンパイル済みスクリプトを読み込む。キャッシュ破棄用にバージョン文字列を付与する -->
     <!-- Update the version query parameter to match the new build ID. -->
-    <script type="module" src="./compiled/main.js?v=20260502_v0_2_notes_arch_fix_01"></script>
+    <script type="module" src="./compiled/main.js?v=20260503_local_starter_layout_fix_01"></script>
   </body>
 </html>

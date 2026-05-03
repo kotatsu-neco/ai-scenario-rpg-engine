@@ -1,0 +1,354 @@
+# ============================================================
+# ai-scenario-rpg-engine public demo .gitignore
+# 目的:
+# - public GitHubリポジトリへ販売版・内部開発版・有料素材を誤アップロードしない
+# - public版には「公開デモとして必要な最小構成」だけを残す
+#
+# 注意:
+# - .gitignore は「これから追加される未追跡ファイル」に効く
+# - すでにGit管理下に入っているファイルは .gitignore だけでは消えない
+# - 既に入っている場合は git rm --cached <path> が必要
+# ============================================================
+
+
+# ============================================================
+# 1. OS / エディタ / 一時ファイル
+# ============================================================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+
+
+# ============================================================
+# 2. Node / npm / build / log
+# ============================================================
+
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+.yarn-cache/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+
+playwright-report/
+test-results/
+blob-report/
+
+
+# ============================================================
+# 3. 環境変数・秘密情報
+# ============================================================
+
+.env
+.env.*
+!.env.example
+
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.mobileprovision
+
+secrets/
+private_keys/
+credentials/
+tokens/
+
+
+# ============================================================
+# 4. 配布物・圧縮ファイル・納品物
+# publicリポジトリにzip販売物を置かない
+# ============================================================
+
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+
+release/
+releases/
+packages/
+package/
+deliverables/
+delivery/
+exports/
+exported/
+bundles/
+seller_upload/
+booth_upload/
+gumroad_upload/
+
+
+# ============================================================
+# 5. 販売版・内部開発版・非公開作業領域
+# ============================================================
+
+private/
+_private/
+internal/
+_internal/
+dev_private/
+work_private/
+draft_private/
+
+starter-kit/
+starter_kit/
+starter-kit-private/
+starter_kit_private/
+standard-kit/
+standard_kit/
+pro-kit/
+pro_kit/
+
+sales/
+_sales/
+commercial/
+_commercial/
+paid/
+_paid/
+premium/
+_premium/
+
+vendor_private/
+client_private/
+
+
+# ============================================================
+# 6. 販売版専用ドキュメント
+# public版README等と混ぜない
+# ============================================================
+
+LICENSE_OR_TERMS.md
+LICENSE_OR_TERMS_DRAFT.md
+
+STARTER_KIT_CONTENTS.md
+STARTER_KIT_CONTENTS_DRAFT.md
+STANDARD_KIT_CONTENTS.md
+PRO_KIT_CONTENTS.md
+
+SALES_PREPARATION_ROADMAP.md
+SALES_COPY.md
+BOOTH_PRODUCT_PAGE.md
+BOOTH_DESCRIPTION.md
+PRICING_PLAN.md
+SUPPORT_POLICY.md
+README_PRIVATE_DRAFTS.md
+
+ASSET_INVENTORY.md
+ASSET_INVENTORY_TEMPLATE.md
+ASSET_INVENTORY_PRIVATE.md
+ASSET_INVENTORY_SALES.md
+
+AI_PROMPTS_PACK.md
+AI_CONSULTATION_PROMPTS.md
+PROMPT_COLLECTION.md
+PROMPTS_FOR_BUYERS.md
+
+TROUBLESHOOTING_FULL.md
+QUICK_START_PAID.md
+ASSET_REPLACEMENT_GUIDE_PAID.md
+CONTENT_PACK_GUIDE_PAID.md
+
+
+# ============================================================
+# 7. 有料版専用素材
+# 素材は必ず public_demo 等で明示的に分ける
+# ============================================================
+
+assets/private/
+assets/_private/
+assets/paid/
+assets/_paid/
+assets/premium/
+assets/_premium/
+assets/starter/
+assets/starter-kit/
+assets/starter_kit/
+assets/standard/
+assets/pro/
+
+graphics/private/
+graphics/paid/
+sprites/private/
+sprites/paid/
+tiles/private/
+tiles/paid/
+ui/private/
+ui/paid/
+audio/private/
+audio/paid/
+bgm/private/
+bgm/paid/
+se/private/
+se/paid/
+sfx/private/
+sfx/paid/
+video/private/
+video/paid/
+
+
+# ============================================================
+# 8. Content Packの誤混入防止
+# public版に残すContent Packを明示的に限定する
+#
+# 現在publicで許可するもの:
+# - content/sample_minimal_pack/
+# - content/sample_broken_missing_dialogue_pack/
+#
+# 新しい公開サンプルを追加する場合は、下に ! で明示的に許可する
+# ============================================================
+
+content/*
+!content/sample_minimal_pack/
+!content/sample_minimal_pack/**
+!content/sample_broken_missing_dialogue_pack/
+!content/sample_broken_missing_dialogue_pack/**
+
+
+# ============================================================
+# 9. サンプルゲーム完成版・販売用シナリオ
+# ============================================================
+
+sample_games/private/
+sample_games/paid/
+sample_games/starter/
+sample_games/standard/
+sample_games/pro/
+
+examples/private/
+examples/paid/
+examples/starter/
+examples/standard/
+examples/pro/
+
+scenarios/private/
+scenarios/paid/
+scenarios/starter/
+scenarios/standard/
+scenarios/pro/
+
+maps/private/
+maps/paid/
+maps/starter/
+maps/standard/
+maps/pro/
+
+
+# ============================================================
+# 10. AI生成素材・素材作成過程
+# publicに出す前の素材管理用
+# ============================================================
+
+ai_generated/
+ai-assets/
+ai_assets/
+generated_assets/
+raw_assets/
+source_assets/
+work_assets/
+psd/
+psds/
+aseprite/
+*.psd
+*.psb
+*.kra
+*.clip
+*.ase
+*.aseprite
+
+
+# ============================================================
+# 11. 検証・報告・スクリーンショット
+# 必要なものだけdocsに整理してcommitする
+# ============================================================
+
+screenshots/
+debug_screenshots/
+verification_results/
+verification_reports/
+reports_private/
+logs/
+*.log
+
+docs/report_bundles/
+docs/private/
+docs/drafts/
+docs/work/
+
+
+# ============================================================
+# 12. Mac / iPhone受け渡し・ローカル作業用
+# ============================================================
+
+icloud_drop/
+iCloud/
+Downloads/
+downloads/
+local_inbox/
+inbox/
+tmp/
+temp/
+scratch/
+working/
+work/
+
+
+# ============================================================
+# 13. 明示的にpublicへ残す主要ファイル
+# 親ディレクトリをignoreしている場合の保険
+# ============================================================
+
+!README.md
+!CHANGELOG_v0_1.md
+!CHANGELOG_v0_2.md
+!manual_verification_instructions_v0_1.md
+!manual_verification_instructions_v0_2.md
+
+!index.html
+!compiled/
+!compiled/main.js
+
+!src/
+!src/**
+!src/styles/
+!src/styles/**
+!src/engine/
+!src/engine/**
+
+
+# ============================================================
+# 14. GitHub Pagesの公開に必要な静的ファイルは許可
+# ============================================================
+
+!.nojekyll
+!CNAME

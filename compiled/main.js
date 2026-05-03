@@ -1,4 +1,6 @@
 import { PlaytestNoteManager } from '../src/engine/notes/PlaytestNoteManager.js';
+import { LocalStarterApp } from '../src/app/LocalStarterApp.js';
+window.__AI_RPG_MAIN_JS_LOADED__ = true;
 /*
  * Entry point for the AI Scenario Mobile Web RPG engine prototype. This
  * script loads a minimal content pack from the public folder, sets up a
@@ -10,7 +12,7 @@ import { PlaytestNoteManager } from '../src/engine/notes/PlaytestNoteManager.js'
 
 // Build identifier used for cache busting and GitHub Pages verification.
 // Update build identifier to reflect Safari fix for GitHub Pages.
-const BUILD_ID = '20260502_v0_2_notes_arch_fix_01';
+const BUILD_ID = '20260503_local_starter_layout_fix_01';
 /**
  * Validate the loaded content pack for invalid references.  Currently
  * only validates show_dialogue steps to ensure the referenced
@@ -138,8 +140,7 @@ function renderContentLoadError(err) {
     <p>URL が正しいか、ホスティング先のパス設定を確認してください。</p>
   `;
     app.appendChild(overlay);
-
-
+}
 
 class Game {
     constructor(canvas, content) {
@@ -570,6 +571,11 @@ class Game {
             // Build a multi‑line string containing key diagnostics.
             const lines = [];
             lines.push(`buildId: ${BUILD_ID}`);
+            lines.push(`main.js loaded: ${window.__AI_RPG_MAIN_JS_LOADED__ === true}`);
+            lines.push(`notes module loaded: ${window.__AI_RPG_NOTES_MODULE_LOADED__ === true}`);
+            lines.push(`ui module loaded: ${window.__AI_RPG_UI_MODULE_LOADED__ === true}`);
+            lines.push(`content pack loaded: ${window.__AI_RPG_CONTENT_PACK_LOADED__ === true}`);
+            lines.push(`Game.start called: ${window.__AI_RPG_GAME_START_CALLED__ === true}`);
             lines.push(`userAgent: ${navigator.userAgent}`);
             // Paths resolved at bootstrap (these properties are
             // populated when the game is initialised).
@@ -768,10 +774,13 @@ async function loadContentPack() {
 }
 // Wait for DOMContentLoaded then bootstrap the game.
 window.addEventListener('DOMContentLoaded', async () => {
+    window.__AI_RPG_BOOT_STARTED__ = true;
     try {
         const content = await loadContentPack();
+        window.__AI_RPG_CONTENT_PACK_LOADED__ = true;
         // Validate the content pack before starting the game.
         const report = validateContentPack(content);
+        const localStarterApp = new LocalStarterApp({ buildId: BUILD_ID }).setup(content, report.summary);
         // Compute and display debug information about paths, IDs and validation summary.
         try {
             const appBaseUrl = new URL('.', window.location.href).href;
@@ -780,7 +789,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             const packUrlStr = new URL(`content/${packIdParam}/pack.json`, new URL('.', window.location.href)).href;
             const packBaseUrl = new URL('.', packUrlStr).href;
             const debugOverlay = document.getElementById('debugOverlay');
-            if (debugOverlay) {
+            if (debugOverlay && params.get('debug') === '1') {
                 debugOverlay.classList.remove('hidden');
                 debugOverlay.style.whiteSpace = 'pre';
                 debugOverlay.innerText =
@@ -822,13 +831,22 @@ window.addEventListener('DOMContentLoaded', async () => {
             // Ignore errors resolving URLs
         }
         game.validationSummary = report.summary;
+        if (localStarterApp && localStarterApp.enabled) {
+            localStarterApp.attachGame(game);
+        }
         // Ensure debug overlay is visible in debug mode only.
         const debugOverlay = document.getElementById('debugOverlay');
         const paramsForDebug = new URLSearchParams(window.location.search);
-        if (debugOverlay && paramsForDebug.get('debug') === '1') {
-            debugOverlay.classList.remove('hidden');
-            debugOverlay.style.whiteSpace = 'pre';
+        if (debugOverlay) {
+            if (paramsForDebug.get('debug') === '1') {
+                debugOverlay.classList.remove('hidden');
+                debugOverlay.style.whiteSpace = 'pre';
+            }
+            else {
+                debugOverlay.classList.add('hidden');
+            }
         }
+        window.__AI_RPG_GAME_START_CALLED__ = true;
         game.start();
         window.aiRpgGame = game;
         window.aiRpgPlaytestNotes = new PlaytestNoteManager(game);
